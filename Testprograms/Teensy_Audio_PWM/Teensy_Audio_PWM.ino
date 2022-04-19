@@ -138,14 +138,15 @@ void loop()
   dc.amplitude(ramp);
   delay(10);*/
 
-  /*uint32_t v = 0;
+  uint32_t v = 32767;
   for(int i = 0; i < (1 << 12); i++)
   {
     v += analogRead(POTI);
   }
-  v >>= 7;*/
+  v >>= 7;
+  if(v > 32767) v = 32767;
 
-  static uint16_t v = 4095;
+  //static uint16_t v = 32767;
   static uint8_t interpol = 0x01;
   static bool once = true;
 
@@ -160,20 +161,23 @@ void loop()
 
   SPI1.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
   digitalWriteFast(SPI_CS, 0);
-  SPI1.transfer(interpol & 0x07);
+  
+
   /*
   for(int i = 0; i < 64; i++)
   {
     SPI1.transfer(interpol);
   }
   */
+  
   SPI1.transfer(v & 0xFF);
   SPI1.transfer((v >> 8) & 0xFF);
+  SPI1.transfer(interpol);// & 0x07);
   digitalWriteFast(SPI_CS, 1);
   SPI1.endTransaction();
   
   
-  delay(5);
+  delay(1);
 
 
   //Serial.printf("%02X%02X\n", (v >> 8) & 0xFF, v & 0xFF);
